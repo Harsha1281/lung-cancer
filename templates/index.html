@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lung Cancer Risk Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: gradientShift 8s ease-in-out infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            50% { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            text-transform: capitalize;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .disclaimer {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #856404;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🫁 Lung Cancer Risk Predictor</h1>
+            <p>Advanced AI-powered health screening tool</p>
+        </div>
+        
+        <form action="/predict" method="post" id="predictionForm">
+            <div class="form-grid">
+                {% for col in feature_cols %}
+                <div class="form-group">
+                    <label for="{{ col }}">
+                        {% if col == 'GENDER' %}👤 Gender
+                        {% elif col == 'AGE' %}🎂 Age
+                        {% elif col == 'SMOKING' %}🚬 Smoking
+                        {% elif col == 'YELLOW_FINGERS' %}✋ Yellow Fingers
+                        {% elif col == 'ANXIETY' %}😰 Anxiety
+                        {% elif col == 'PEER_PRESSURE' %}👥 Peer Pressure
+                        {% elif col == 'CHRONIC_DISEASE' %}🏥 Chronic Disease
+                        {% elif col == 'FATIGUE' %}😴 Fatigue
+                        {% elif col == 'ALLERGY' %}🤧 Allergy
+                        {% elif col == 'WHEEZING' %}💨 Wheezing
+                        {% elif col == 'ALCOHOL_CONSUMING' %}🍷 Alcohol Consuming
+                        {% elif col == 'COUGHING' %}😷 Coughing
+                        {% elif col == 'SHORTNESS_OF_BREATH' %}💨 Shortness of Breath
+                        {% elif col == 'SWALLOWING_DIFFICULTY' %}🍽️ Swallowing Difficulty
+                        {% elif col == 'CHEST_PAIN' %}💔 Chest Pain
+                        {% else %}{{ col.replace('_', ' ').title() }}
+                        {% endif %}
+                    </label>
+                    
+                    {% if col == 'AGE' %}
+                        <input type="number" id="{{ col }}" name="{{ col }}" min="1" max="120" placeholder="Enter your age" required>
+                    {% elif col == 'GENDER' %}
+                        <select id="{{ col }}" name="{{ col }}" required>
+                            <option value="" disabled selected>Select Gender</option>
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    {% else %}
+                        <select id="{{ col }}" name="{{ col }}" required>
+                            <option value="" disabled selected>Select Option</option>
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                🔍 Analyze Risk
+            </button>
+        </form>
+        
+        <div class="disclaimer">
+            <strong>⚠️ Medical Disclaimer:</strong> This tool is for educational purposes only and should not replace professional medical advice. Please consult with a healthcare provider for proper medical evaluation.
+        </div>
+    </div>
+    
+    <script>
+        // Form validation and enhancement
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            // Check if all required fields are filled
+            const requiredFields = this.querySelectorAll('[required]');
+            let allFilled = true;
+            let firstEmptyField = null;
+            
+            requiredFields.forEach(field => {
+                if (!field.value || field.value === '') {
+                    allFilled = false;
+                    if (!firstEmptyField) {
+                        firstEmptyField = field;
+                    }
+                    // Add error styling
+                    field.style.borderColor = '#e74c3c';
+                    field.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+                } else {
+                    // Remove error styling
+                    field.style.borderColor = '#e1e8ed';
+                    field.style.boxShadow = 'none';
+                }
+            });
+            
+            if (!allFilled) {
+                e.preventDefault();
+                // Focus on first empty field
+                if (firstEmptyField) {
+                    firstEmptyField.focus();
+                    firstEmptyField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                // Show error message
+                let errorMsg = document.getElementById('errorMessage');
+                if (!errorMsg) {
+                    errorMsg = document.createElement('div');
+                    errorMsg.id = 'errorMessage';
+                    errorMsg.style.cssText = `
+                        background: #ffebee;
+                        border: 2px solid #e74c3c;
+                        color: #c62828;
+                        padding: 15px;
+                        border-radius: 10px;
+                        margin: 20px 0;
+                        text-align: center;
+                        font-weight: 600;
+                        animation: shake 0.5s ease-in-out;
+                    `;
+                    document.querySelector('.form-grid').insertAdjacentElement('afterend', errorMsg);
+                }
+                errorMsg.innerHTML = '❌ Please fill in all required fields before submitting.';
+                
+                // Add shake animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes shake {
+                        0%, 100% { transform: translateX(0); }
+                        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                        20%, 40%, 60%, 80% { transform: translateX(5px); }
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                return false;
+            }
+            
+            // Remove any existing error message
+            const errorMsg = document.getElementById('errorMessage');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+            
+            // Update submit button
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.innerHTML = '🔄 Analyzing...';
+            submitBtn.style.background = 'linear-gradient(135deg, #95a5a6, #7f8c8d)';
+            submitBtn.disabled = true;
+        });
+        
+        // Add real-time validation
+        document.querySelectorAll('[required]').forEach(field => {
+            field.addEventListener('change', function() {
+                if (this.value && this.value !== '') {
+                    // Remove error styling when field is filled
+                    this.style.borderColor = '#27ae60';
+                    this.style.boxShadow = '0 0 0 3px rgba(39, 174, 96, 0.1)';
+                    
+                    // Add success checkmark
+                    let checkmark = this.parentElement.querySelector('.checkmark');
+                    if (!checkmark) {
+                        checkmark = document.createElement('span');
+                        checkmark.className = 'checkmark';
+                        checkmark.innerHTML = '✓';
+                        checkmark.style.cssText = `
+                            position: absolute;
+                            right: 15px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            color: #27ae60;
+                            font-weight: bold;
+                            font-size: 1.2rem;
+                        `;
+                        this.parentElement.style.position = 'relative';
+                        this.parentElement.appendChild(checkmark);
+                    }
+                } else {
+                    // Remove success styling and checkmark
+                    this.style.borderColor = '#e1e8ed';
+                    this.style.boxShadow = 'none';
+                    const checkmark = this.parentElement.querySelector('.checkmark');
+                    if (checkmark) {
+                        checkmark.remove();
+                    }
+                }
+            });
+        });
+        
+        // Add smooth scrolling and form animations
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Add progress indicator
+        function updateProgress() {
+            const totalFields = document.querySelectorAll('[required]').length;
+            const filledFields = Array.from(document.querySelectorAll('[required]')).filter(field => field.value && field.value !== '').length;
+            const percentage = (filledFields / totalFields) * 100;
+            
+            let progressBar = document.getElementById('progressBar');
+            if (!progressBar) {
+                progressBar = document.createElement('div');
+                progressBar.id = 'progressBar';
+                progressBar.innerHTML = `
+                    <div style="background: #e1e8ed; height: 4px; border-radius: 2px; margin: 20px 0;">
+                        <div id="progressFill" style="background: linear-gradient(135deg, #27ae60, #2ecc71); height: 100%; border-radius: 2px; width: 0%; transition: width 0.3s ease;"></div>
+                    </div>
+                    <div style="text-align: center; font-size: 0.9rem; color: #666;">
+                        <span id="progressText">0% Complete</span>
+                    </div>
+                `;
+                document.querySelector('.header').insertAdjacentElement('afterend', progressBar);
+            }
+            
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = Math.round(percentage) + '% Complete';
+        }
+        
+        // Update progress on field changes
+        document.querySelectorAll('[required]').forEach(field => {
+            field.addEventListener('change', updateProgress);
+        });
+        
+        // Initialize progress
+        updateProgress();
+    </script>
+</body>
+</html>

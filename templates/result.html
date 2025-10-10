@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results - Lung Cancer Risk</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: backgroundFloat 10s ease-in-out infinite;
+        }
+        
+        @keyframes backgroundFloat {
+            0%, 100% { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
+            50% { background: linear-gradient(135deg, #8e44ad 0%, #e74c3c 100%); }
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 3px solid;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .result-card.high-risk {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+        }
+        
+        .result-card.low-risk {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .result-message {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .probability-display {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .risk-level {
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .high-risk .probability-display { color: #e74c3c; }
+        .low-risk .probability-display { color: #27ae60; }
+        
+        .high-risk .risk-level {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .low-risk .risk-level {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .input-summary {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .input-summary h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .input-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            transition: transform 0.2s ease;
+        }
+        
+        .input-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .input-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .input-value {
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #856404;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .probability-display {
+                font-size: 2.5rem;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🫁 Prediction Results</h1>
+        </div>
+        
+        <div class="result-card {{ result_class }}">
+            <div class="result-message">{{ result_message }}</div>
+            <div class="probability-display">{{ probability }}%</div>
+            <div class="risk-level">Risk Level: {{ risk_level }}</div>
+        </div>
+        
+        <div class="input-summary">
+            <h3>📋 Your Input Summary</h3>
+            <div class="input-grid">
+                {% for key, value in inputs.items() %}
+                <div class="input-item">
+                    <span class="input-label">
+                        {% if key == 'GENDER' %}👤 Gender
+                        {% elif key == 'AGE' %}🎂 Age
+                        {% elif key == 'SMOKING' %}🚬 Smoking
+                        {% elif key == 'YELLOW_FINGERS' %}✋ Yellow Fingers
+                        {% elif key == 'ANXIETY' %}😰 Anxiety
+                        {% elif key == 'PEER_PRESSURE' %}👥 Peer Pressure
+                        {% elif key == 'CHRONIC_DISEASE' %}🏥 Chronic Disease
+                        {% elif key == 'FATIGUE' %}😴 Fatigue
+                        {% elif key == 'ALLERGY' %}🤧 Allergy
+                        {% elif key == 'WHEEZING' %}💨 Wheezing
+                        {% elif key == 'ALCOHOL_CONSUMING' %}🍷 Alcohol Consuming
+                        {% elif key == 'COUGHING' %}😷 Coughing
+                        {% elif key == 'SHORTNESS_OF_BREATH' %}💨 Shortness of Breath
+                        {% elif key == 'SWALLOWING_DIFFICULTY' %}🍽️ Swallowing Difficulty
+                        {% elif key == 'CHEST_PAIN' %}💔 Chest Pain
+                        {% else %}{{ key.replace('_', ' ').title() }}
+                        {% endif %}
+                    </span>
+                    <span class="input-value">
+                        {% if key == 'GENDER' %}
+                            {{ 'Male' if value == 1 else 'Female' }}
+                        {% elif key == 'AGE' %}
+                            {{ value }} years
+                        {% else %}
+                            {{ 'Yes' if value == 1 else 'No' }}
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="/" class="btn btn-primary">🔄 New Prediction</a>
+            <button onclick="window.print()" class="btn btn-secondary">🖨️ Print Results</button>
+        </div>
+        
+        <div class="timestamp">
+            Generated on: {{ timestamp }}
+        </div>
+        
+        <div class="disclaimer">
+            <strong>⚠️ Important:</strong> This prediction is based on statistical analysis and machine learning. It should not be used as a substitute for professional medical diagnosis. Please consult with a qualified healthcare provider for proper medical evaluation and advice.
+        </div>
+    </div>
+    
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate probability display
+            const probDisplay = document.querySelector('.probability-display');
+            if (probDisplay) {
+                const finalValue = parseInt(probDisplay.textContent);
+                let currentValue = 0;
+                const increment = finalValue / 50;
+                
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= finalValue) {
+                        currentValue = finalValue;
+                        clearInterval(timer);
+                    }
+                    probDisplay.textContent = Math.round(currentValue) + '%';
+                }, 30);
+            }
+            
+            // Add hover effects to input items
+            document.querySelectorAll('.input-item').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.borderLeftColor = '#e74c3c';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.borderLeftColor = '#3498db';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
